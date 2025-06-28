@@ -1,0 +1,6 @@
+Usage: rpn-calc [options]
+Options:
+  --formula <formula>  Calculate the formula
+  --file <file>        Calculate formulas from a file
+  --help               Show this help message
+  --version            Show version number
