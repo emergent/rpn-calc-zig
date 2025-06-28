@@ -3,6 +3,14 @@ const calculator = @import("calculator.zig");
 
 const version = "0.1.0";
 
+fn printResult(result: f64, writer: anytype) !void {
+    if (result == @trunc(result)) {
+        try writer.print("{d}\n", .{@as(i64, @intFromFloat(result))});
+    } else {
+        try writer.print("{d}\n", .{result});
+    }
+}
+
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     const allocator = gpa.allocator();
@@ -26,7 +34,7 @@ pub fn main() !void {
             }
             const formula = args[2];
             const result = try calculator.eval(allocator, formula);
-            try std.io.getStdOut().writer().print("{d:.1}\n", .{result});
+            try printResult(result, std.io.getStdOut().writer());
             return;
         } else if (std.mem.eql(u8, args[1], "--file")) {
             if (args.len < 3) {
@@ -43,7 +51,7 @@ pub fn main() !void {
             var line_buf: [1024]u8 = undefined;
             while (try in_stream.readUntilDelimiterOrEof(&line_buf, '\n')) |line| {
                 const result = try calculator.eval(allocator, line);
-                try std.io.getStdOut().writer().print("{d:.1}\n", .{result});
+                try printResult(result, std.io.getStdOut().writer());
             }
             return;
         }
@@ -70,7 +78,7 @@ pub fn main() !void {
                     try std.io.getStdErr().writer().print("Error: {s}\n", .{@errorName(e)});
                     continue;
                 };
-                try std.io.getStdOut().writer().print("{d:.1}\n", .{result});
+                try printResult(result, std.io.getStdOut().writer());
             } else {
                 break;
             }
