@@ -65,3 +65,33 @@ test "complex formula" {
     const result = try eval(allocator, "5 3 4 + * 2 /");
     try testing.expectEqual(result, 17.5);
 }
+
+test "empty formula" {
+    const allocator = testing.allocator;
+    const result = eval(allocator, "");
+    try testing.expectError(error.InvalidFormula, result);
+}
+
+test "invalid token" {
+    const allocator = testing.allocator;
+    const result = eval(allocator, "1 2 foo");
+    try testing.expectError(error.InvalidFormula, result);
+}
+
+test "not enough numbers on stack" {
+    const allocator = testing.allocator;
+    const result = eval(allocator, "1 +");
+    try testing.expectError(error.InvalidFormula, result);
+}
+
+test "too many numbers on stack" {
+    const allocator = testing.allocator;
+    const result = eval(allocator, "1 2 3 +");
+    try testing.expectError(error.InvalidFormula, result);
+}
+
+test "division by zero" {
+    const allocator = testing.allocator;
+    const result = try eval(allocator, "1 0 /");
+    try testing.expect(result == std.math.inf(f64));
+}
